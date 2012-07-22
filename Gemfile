@@ -1,9 +1,10 @@
 source "http://rubygems.org"
 
-gem 'couchbase'
+gem 'couchbase', "~> 1.1.2"
 
 group :development do
-  gem "minitest", ">= 0"
+  gem "minitest"
+  gem "minitest-reporters", ">= 0.5.0"
   gem "rdoc", "~> 3.12"
   gem "bundler"
   gem "jeweler", "~> 1.8.3"
