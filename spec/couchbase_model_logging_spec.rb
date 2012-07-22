@@ -19,7 +19,7 @@ describe 'CouchbaseModelLogging' do
     it "should add one entry correctly" do
       key = "t1"
       hsh = { :a => 1, :b => 2 }
-      client.delete subject.prefixed_key_for(key)
+      subject.delete key
 
       subject.add key, hsh
       subject.key?(key).must_equal true
@@ -37,7 +37,7 @@ describe 'CouchbaseModelLogging' do
 
     it "should add several entries correctly" do
       key = "t2"
-      client.delete subject.prefixed_key_for(key)
+      subject.delete key
 
       subject.add key, :a => 1, :b => 2
       subject.add key, :b => 2, :c => 3
@@ -52,9 +52,38 @@ describe 'CouchbaseModelLogging' do
       ary[2].must_equal :c => 3, :d => 4
     end
 
+    it "should not max out" do
+      key = "t3"
+      subject.delete key
+
+      hsh = { }
+      (1..2048).each { |x| hsh[x] = "a" * 1024 }
+
+      subject.add key, hsh
+      subject.key?(key).must_equal true
+
+      encoded = subject.get key
+      encoded.must_equal subject.encode(hsh)
+
+      decoded = subject.decode encoded
+      decoded.must_equal [hsh]
+
+      ary = subject.all key
+      ary.size.must_equal 1
+      ary[0].must_equal hsh
+    end
+
     it "should get an empty response when missing" do
       key = "missing_key"
       subject.all(key).must_equal []
+    end
+
+    it "should delete keys" do
+      key = "deleted"
+      subject.add key, :test => 1
+      subject.key?(key).must_equal true
+      subject.delete key
+      subject.key?(key).must_equal false
     end
 
   end

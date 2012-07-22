@@ -45,6 +45,10 @@ module CouchbaseModelLogging
       decode get(key)
     end
 
+    def delete(key)
+      client.delete prefixed_key_for(key)
+    end
+
     def prefixed_key_for(key)
       prefix.nil? ? key.to_s : "#{prefix}::#{key}"
     end
