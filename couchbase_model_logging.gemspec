@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
     "README.rdoc",
     "Rakefile",
     "VERSION",
+    "couchbase_model_logging.gemspec",
     "lib/couchbase_model_logging.rb",
     "lib/couchbase_model_logging/client.rb",
     "lib/couchbase_model_logging/exceptions.rb",
