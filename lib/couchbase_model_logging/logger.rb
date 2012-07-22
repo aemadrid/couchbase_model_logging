@@ -1,31 +1,52 @@
+require 'yaml'
+
 module CouchbaseModelLogging
 
   class Logger
 
-    attr_accessor :client, :prefix, :separator, :replacement
+    attr_accessor :client, :prefix, :separator
 
-    def initialize(client, prefix, options = { })
-      self.client      = client
-      self.prefix   = prefix
-      self.separator   = options[:separator] || '[SEP]'
-      self.replacement = options[:replacement] || '[SEP_REPL]'
+    def initialize(client, prefix = nil, options = { })
+      self.client    = client
+      self.prefix    = prefix
+      self.separator = options[:separator] || '[SEP]'
     end
 
-    def add(key, hash = {})
-      json = hash.to_json
-      raise CouchbaseModelLogging::ReplacementError, "Found replacement [#{replacement}] in JSON string" if hash.index(replacement)
-      json = json.gsub separator, replacement
-      prefixed_key = "#{prefix}::#{key}"
+    def key?(key)
+      !get(key).nil?
+    end
+
+    def encode(hash)
+      yaml = hash.to_yaml
+      raise CouchbaseModelLogging::ReplacementError, "Found separator [#{separator}] in YAML string" if yaml.index(separator)
+      yaml + separator
+    end
+
+    def add(key, hash = { })
+      yaml     = encode hash
+      pref_key = prefixed_key_for key
       begin
-        client.add prefixed_key, json, :format => "plain"
-      rescue ::Couchbase::Error::KeyExists
-        client.append prefixed_key, json, :format => "plain"
+        client.append pref_key, yaml, :format => :plain
+      rescue ::Couchbase::Error::NotStored
+        client.add pref_key, yaml, :format => :plain
       end
     end
 
+    def get(key)
+      client.get(prefixed_key_for(key), :format => :plain)
+    end
+
+    def decode(str)
+      return [] if str.nil? || str.empty?
+      str.split(separator).map { |yaml| YAML.load yaml }
+    end
+
     def all(key)
-      prefixed_key = "#{prefix}::#{key}"
-      client.get prefixed_key
+      decode get(key)
+    end
+
+    def prefixed_key_for(key)
+      prefix.nil? ? key.to_s : "#{prefix}::#{key}"
     end
 
   end

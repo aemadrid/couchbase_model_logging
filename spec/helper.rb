@@ -1,4 +1,4 @@
-unless const_defined?(:SPEC_HELPER_LOADED)
+unless Object.const_defined?(:SPEC_HELPER_LOADED)
   require 'rubygems'
   require 'bundler'
   begin
@@ -14,5 +14,5 @@ unless const_defined?(:SPEC_HELPER_LOADED)
   $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
   require 'couchbase_model_logging'
 
-  SPEC_HELPER_LOADED = true
+  Object.const_set :SPEC_HELPER_LOADED, true
 end
