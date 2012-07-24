@@ -4,7 +4,7 @@ module CouchbaseModelLogging
 
   class Client
 
-    attr_accessor :host, :port, :pool, :bucket, :protocol
+    attr_accessor :host, :port, :pool, :bucket, :protocol, :username, :password
 
     def initialize(options = { })
       self.protocol = options[:protocol] || 'http'
@@ -12,14 +12,20 @@ module CouchbaseModelLogging
       self.port     = options[:port] || 8091
       self.pool     = options[:pool] || 'default'
       self.bucket   = options[:bucket] || 'default'
+      self.username = options[:username]
+      self.password = options[:password]
     end
 
     def url
       "#{protocol}://#{host}:#{port}/pools/#{pool}/buckets/#{bucket}"
     end
 
+    def connection_options
+      (username && password) ? { :username => username, :password => password } : {}
+    end
+
     def native_client
-      @native_client ||= ::Couchbase.connect url
+      @native_client ||= ::Couchbase.connect url, connection_options
     end
 
     def respond_to?(meth)
