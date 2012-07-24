@@ -28,7 +28,11 @@ module CouchbaseModelLogging
       begin
         client.append pref_key, yaml, :format => :plain
       rescue ::Couchbase::Error::NotStored
-        client.add pref_key, yaml, :format => :plain
+        begin
+          client.add pref_key, yaml, :format => :plain
+        rescue ::Couchbase::Error::KeyExists
+          client.append pref_key, yaml, :format => :plain
+        end
       end
     end
 
