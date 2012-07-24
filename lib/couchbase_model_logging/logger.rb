@@ -4,12 +4,13 @@ module CouchbaseModelLogging
 
   class Logger
 
-    attr_accessor :client, :prefix, :separator
+    attr_accessor :client, :prefix, :string_separator, :key_separator
 
     def initialize(client, prefix = nil, options = { })
       self.client    = client
       self.prefix    = prefix
-      self.separator = options[:separator] || '[SEP]'
+      self.key_separator = ":"
+      self.string_separator = options[:string_separator] || '[SEP]'
     end
 
     def key?(key)
@@ -18,8 +19,8 @@ module CouchbaseModelLogging
 
     def encode(hash)
       yaml = hash.to_yaml
-      raise CouchbaseModelLogging::ReplacementError, "Found separator [#{separator}] in YAML string" if yaml.index(separator)
-      yaml + separator
+      raise CouchbaseModelLogging::ReplacementError, "Found separator [#{string_separator}] in YAML string" if yaml.index(string_separator)
+      yaml + string_separator
     end
 
     def add(key, hash = { })
@@ -42,7 +43,7 @@ module CouchbaseModelLogging
 
     def decode(str)
       return [] if str.nil? || str.empty?
-      str.split(separator).map { |yaml| YAML.load yaml }
+      str.split(string_separator).map { |yaml| YAML.load yaml }
     end
 
     def all(key)
@@ -54,7 +55,7 @@ module CouchbaseModelLogging
     end
 
     def prefixed_key_for(key)
-      prefix.nil? ? key.to_s : "#{prefix}::#{key}"
+      prefix.nil? ? key.to_s : "#{prefix}#{key_separator}#{key}"
     end
 
   end
