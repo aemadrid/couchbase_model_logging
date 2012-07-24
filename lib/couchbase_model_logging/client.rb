@@ -17,11 +17,15 @@ module CouchbaseModelLogging
     end
 
     def url
-      "#{protocol}://#{host}:#{port}/pools/#{pool}/buckets/#{bucket}"
+      "#{protocol}://#{host}:#{port}/pools/#{pool}"
     end
 
     def connection_options
-      (username && password) ? { :username => username, :password => password } : {}
+      options = {}
+      options[:bucket] = bucket
+      options[:username] = username if username
+      options[:password] = password if password
+      options
     end
 
     def native_client
