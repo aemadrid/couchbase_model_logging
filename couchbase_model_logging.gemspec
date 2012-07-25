@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "couchbase_model_logging"
-  s.version = "0.0.6"
+  s.version = "0.0.7"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Adrian Madrid"]
-  s.date = "2012-07-24"
+  s.date = "2012-07-25"
   s.description = "ditto"
   s.email = "aemadrid@gmail.com"
   s.extra_rdoc_files = [
