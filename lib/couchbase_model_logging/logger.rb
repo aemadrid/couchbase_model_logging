@@ -7,9 +7,9 @@ module CouchbaseModelLogging
     attr_accessor :client, :prefix, :string_separator, :key_separator
 
     def initialize(client, prefix = nil, options = { })
-      self.client    = client
-      self.prefix    = prefix
-      self.key_separator = ":"
+      self.client           = client
+      self.prefix           = prefix
+      self.key_separator    = ":"
       self.string_separator = options[:string_separator] || '[SEP]'
     end
 
@@ -35,6 +35,12 @@ module CouchbaseModelLogging
           client.append pref_key, yaml, :format => :plain
         end
       end
+    end
+
+    def set(key, hashes)
+      yaml     = hashes.map { |hash| encode hash }.join("")
+      pref_key = prefixed_key_for key
+      client.set pref_key, yaml, :format => :plain
     end
 
     def get(key)

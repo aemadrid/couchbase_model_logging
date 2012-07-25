@@ -6,7 +6,8 @@ describe 'CouchbaseModelLogging' do
   let(:client) { CouchbaseModelLogging::Client.new :bucket => bucket }
 
   describe 'Client' do
-    it { client.url.must_equal "http://localhost:8091/pools/default/buckets/#{bucket}" }
+    it { client.url.must_equal "http://localhost:8091/pools/default" }
+    it { client.connection_options.must_equal :bucket => "default" }
     it { client.native_client.class.name.must_equal "Couchbase::Bucket" }
   end
 
@@ -35,13 +36,28 @@ describe 'CouchbaseModelLogging' do
       ary[0].must_equal hsh
     end
 
-    it "should add several entries correctly" do
-      key = "t2"
+    it "should add several entries separately correctly" do
+      key = "t2a"
       subject.delete key
 
       subject.add key, :a => 1, :b => 2
       subject.add key, :b => 2, :c => 3
       subject.add key, :c => 3, :d => 4
+
+      subject.key?(key).must_equal true
+
+      ary = subject.all key
+      ary.size.must_equal 3
+      ary[0].must_equal :a => 1, :b => 2
+      ary[1].must_equal :b => 2, :c => 3
+      ary[2].must_equal :c => 3, :d => 4
+    end
+
+    it "should add several entries at once correctly" do
+      key = "t2b"
+      subject.delete key
+
+      subject.set key, [{:a => 1, :b => 2}, {:b => 2, :c => 3}, {:c => 3, :d => 4}]
 
       subject.key?(key).must_equal true
 
